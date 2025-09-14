@@ -166,7 +166,9 @@ To start:
 python SEGADOC2in1Video.py
 
 
-<img width="1767" height="943" alt="image" src="https://github.com/user-attachments/assets/b9136295-de04-49e8-92cb-eea4e5789a92" />
+<img width="1761" height="1006" alt="image" src="https://github.com/user-attachments/assets/7393e798-9965-48ac-bfbc-edee85551c37" />
+
+
 
 
 

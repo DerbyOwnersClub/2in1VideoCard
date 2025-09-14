@@ -79,12 +79,11 @@ If frames are black, confirm the source device is powered and connected.
 
 Using an HDMI splitter is recommended for setup and debugging.
 
-Utility script:
-
+Use the Utility script to search and display all formats of video input:
 video_troubleshoot.sh
+- Script iterates through all /dev/video* devices and logs whether they are active.
 
 
-Iterates through all /dev/video* devices and logs whether they are active.
 
 🐍 Python Virtual Environment Setup
 
@@ -157,8 +156,7 @@ gst-launch-1.0 \
   v4l2src device=/dev/video0 ! video/x-raw,width=640,height=480 ! queue ! comp. \
   v4l2src device=/dev/video2 ! video/x-raw,width=640,height=480 ! queue ! comp.
 
-
-Would you like me to also add diagrams (e.g., a simple block diagram showing two VGA → HDMI → USB capture → GStreamer → compositor → sink) to the README? That could make the setup more beginner-friendly.
-
+To start:
+python SEGADOC2in1Video.py
 
 

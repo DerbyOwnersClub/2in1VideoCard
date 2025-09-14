@@ -6,6 +6,7 @@ Original goal:
 Combine two VGA video sources (from Derby Owners Club),  using HDMI upscalers and USB capture devices so as to process with GStreamer + Compositor feature + Python/GTK.
 
 🖥️ Hardware Requirements
+Video game with two VGA outputs.
 
 Qty: 2 — VGA male → VGA male (from Derby Owners Club main unit to HDMI upscalers)
 
@@ -158,5 +159,6 @@ gst-launch-1.0 \
 
 
 Would you like me to also add diagrams (e.g., a simple block diagram showing two VGA → HDMI → USB capture → GStreamer → compositor → sink) to the README? That could make the setup more beginner-friendly.
+
 
 

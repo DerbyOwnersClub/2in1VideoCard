@@ -1,3 +1,9 @@
+<img width="1591" height="695" alt="image" src="https://github.com/user-attachments/assets/464f0e5c-2b2f-4d76-8e5e-ac415159ed60" />
+
+
+
+
+
 **2-in-1 Video Capture & Compositor Setup**
 
 This guide explains how to set up, test, and troubleshoot a dual video-capture pipeline using Ubuntu Desktop (tested on VPro processor w/ 32 GB RAM & 16 GPU) or a Raspberry Pi 5 (8 GB RAM).
@@ -158,5 +164,6 @@ gst-launch-1.0 \
 
 To start:
 python SEGADOC2in1Video.py
+
 
 

@@ -154,3 +154,6 @@ gst-launch-1.0 \
   compositor name=comp sink_0::xpos=0 sink_1::xpos=640 ! autovideosink \
   v4l2src device=/dev/video0 ! video/x-raw,width=640,height=480 ! queue ! comp. \
   v4l2src device=/dev/video2 ! video/x-raw,width=640,height=480 ! queue ! comp.
+
+
+Would you like me to also add diagrams (e.g., a simple block diagram showing two VGA → HDMI → USB capture → GStreamer → compositor → sink) to the README? That could make the setup more beginner-friendly.

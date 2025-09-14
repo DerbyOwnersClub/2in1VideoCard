@@ -1,4 +1,4 @@
-2-in-1 Video Capture & Compositor Setup
+**2-in-1 Video Capture & Compositor Setup**
 
 This guide explains how to set up, test, and troubleshoot a dual video-capture pipeline using Ubuntu Desktop (tested on VPro processor w/ 32 GB RAM & 16 GPU) or a Raspberry Pi 5 (8 GB RAM).
 
@@ -157,3 +157,4 @@ gst-launch-1.0 \
 
 
 Would you like me to also add diagrams (e.g., a simple block diagram showing two VGA → HDMI → USB capture → GStreamer → compositor → sink) to the README? That could make the setup more beginner-friendly.
+

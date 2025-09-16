@@ -36,7 +36,7 @@ Required to run in ubuntu or rpi.
 
 Create a venv with system packages. 
 
-python3 -m gstvenv --system-site-packages gstenv
+python3 -m mvenv --system-site-packages gstenv
 
 source gstenv/bin/activate
 

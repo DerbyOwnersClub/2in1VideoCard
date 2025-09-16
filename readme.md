@@ -36,11 +36,14 @@ Required to run in ubuntu or rpi.
 
 Before continuing you will need to have python referenced by python3.
 
-In a BASH shell:
-Create a venv with system packages. 
 
+**Create a venv(python virtual environment) with system packages. **
+- Open a shell in BASH
+  
 python3 -m venv --system-site-packages gstenv
+- This will create a virtual environment named gstenv
 
+Activate virtual envionrment
 source gstenv/bin/activate
 
 - Look for a prompt to the left with  
@@ -99,6 +102,7 @@ Use the Utility script to search and display all formats of video input:
  
 
  
+
 
 
 

@@ -16,7 +16,7 @@ Video game with two VGA outputs.
 
 Qty: 2 — VGA male → VGA male (from Derby Owners Club main unit to HDMI upscalers)
 
-Qty: 2 — 60 Hz USB-A video capture cards
+Qty: 2 — 1920x1080 and 1280x720 60 Hz USB-A video capture cards
 
 Qty: 2 — VGA → HDMI upscalers (1920×1080 or 1280×720 supported)
 
@@ -25,73 +25,24 @@ Qty: 2 — VGA → HDMI upscalers (1920×1080 or 1280×720 supported)
 Connect capture devices
 Plug in both USB-A capture cards.
 
-Discover devices
-
-ls -al /dev/video*
-
-
-List devices and capabilities
-
-v4l2-ctl --list-devices
-
-
-Example:
-
-USB3.0 Capture: USB3.0 Capture (usb-0000:00:14.0-1):
-    /dev/video4
-    /dev/video5
-    /dev/media2
-
-
-Inspect video formats
-
-v4l2-ctl --device=/dev/video4 --list-formats-ext
-v4l2-ctl --device=/dev/video5 --list-formats-ext
-
-
-Look for MJPG 1920x1080 at 30 fps or 60 fps.
-
-🎥 Basic GStreamer Tests
-
-Show test color bars:
-
-gst-launch-1.0 v4l2src device=/dev/video4 ! videoconvert ! autovideosink
-
-
-Minimal stream test:
-
-gst-launch-1.0 v4l2src device=/dev/video4 ! videoconvert ! autovideosink
-
-
-Known 1080p configuration:
-
-gst-launch-1.0 v4l2src device=/dev/video4 ! \
-  image/jpeg,width=1920,height=1080,framerate=30/1 ! \
-  jpegdec ! autovideosink sync=false
-
-
-Known 720p configuration:
-
-gst-launch-1.0 v4l2src device=/dev/video4 ! \
-  image/jpeg,width=1280,height=720,framerate=30/1 ! \
-  jpegdec ! autovideosink sync=false
-
-
-⚠️ Important: Set your monitor resolution to 1920×1080 for the best match to captured streams.
-
-🔧 Troubleshooting
-
-If frames are black, confirm the source device is powered and connected.
-
-Using an HDMI splitter is recommended for setup and debugging.
-
-Use the Utility script to search and display all formats of video input:
-video_troubleshoot.sh
-- Script iterates through all /dev/video* devices and logs whether they are active.
-
+Execute discovery script from the directory you are in:
+python DiscoverWorkingVideo.py
+- make note of the video sources appearing and answer the questions correctly.
+- take note of video# devices because you will need them when you execute the main script. 
 
 
 🐍 Python Virtual Environment Setup
+Required to run in ubuntu or rpi.
+
+Create a venv with system packages. 
+
+python3 -m gstvenv --system-site-packages gstenv
+
+source gstenv/bin/activate
+
+Upgrade pip and pure-Python deps:
+
+pip install --upgrade pip wheel setuptools
 
 Install system libraries
 
@@ -112,17 +63,6 @@ gst-inspect-1.0 gtksink   | head
 gst-inspect-1.0 xvimagesink | head   # optional
 
 
-Create a venv with system packages
-
-python3 -m venv --system-site-packages gstenv
-source gstenv/bin/activate
-
-
-Do not pip install PyGObject or gstreamer wheels. Use system-provided gi.
-
-Upgrade pip and pure-Python deps
-
-pip install --upgrade pip wheel setuptools
 
 
 Verify imports
@@ -132,38 +72,7 @@ python -c 'import gi; gi.require_version("Gst","1.0"); gi.require_version("Gtk",
 
 Run the compositor script
 
-python Derby2in1.py video2 video4
-
-
-Debug if blank
-
-GST_DEBUG=2 python Derby2in1.py video2 video4
-
-
-If still blank, test glimagesink instead of gtksink.
-
-Extra checks
-
-Confirm X11 vs Wayland:
-
-echo "$XDG_SESSION_TYPE"
-
-
-Ensure user is in video group:
-
-groups | grep -w video || sudo usermod -aG video "$USER"
-
-✅ Validate GStreamer Compositor
-
-Minimal working test (two sources @ 640×480):
-
-gst-launch-1.0 \
-  compositor name=comp sink_0::xpos=0 sink_1::xpos=640 ! autovideosink \
-  v4l2src device=/dev/video0 ! video/x-raw,width=640,height=480 ! queue ! comp. \
-  v4l2src device=/dev/video2 ! video/x-raw,width=640,height=480 ! queue ! comp.
-
-To start:
-python SEGADOC2in1Video.py
+python SEGADOC2in1Video.py video# video#
 
 
 <img width="1761" height="1006" alt="image" src="https://github.com/user-attachments/assets/7393e798-9965-48ac-bfbc-edee85551c37" />
@@ -171,5 +80,17 @@ python SEGADOC2in1Video.py
 
 
 
+
+
+
+🔧 Troubleshooting
+
+If frames are black, confirm the source device is powered and connected.
+
+Using an HDMI splitter is recommended for setup and debugging.
+
+Use the Utility script to search and display all formats of video input:
+video_troubleshoot.sh
+- Script iterates through all /dev/video* devices and logs whether they are active.
 
 

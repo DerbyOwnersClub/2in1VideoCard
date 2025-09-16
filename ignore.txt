@@ -1,2 +1,2 @@
-/home/administrator/github/Sandbox
+/Sandbox
 

@@ -42,10 +42,13 @@ Create a venv with system packages.
 python3 -m venv --system-site-packages gstenv
 
 source gstenv/bin/activate
+
 - Look for a prompt to the left with  
 (gstenv) 
 
+
 Upgrade pip and pure-Python deps:
+
 pip install --upgrade pip wheel setuptools
 
 
@@ -73,7 +76,8 @@ Verify imports
 python -c 'import gi; gi.require_version("Gst","1.0"); gi.require_version("Gtk","3.0"); from gi.repository import Gst, Gtk; print("GI OK")'
 
 
-Run the compositor script with the video sources you gained when you ran DiscoverWorkingVideo.py:
+Run the script to combine with the video sources you gained when you ran DiscoverWorkingVideo.py above:
+
 python3 SEGADOC2in1Video.py video# video#
 
 
@@ -89,9 +93,12 @@ If frames are black, confirm the source device is powered and connected.
 Using an HDMI splitter is recommended for setup and debugging.
 
 Use the Utility script to search and display all formats of video input:
+ 
  DiscoverWorkingVideo.py
- The script helps you see which video devices are working.
+ 
+ 
 
  
+
 
 

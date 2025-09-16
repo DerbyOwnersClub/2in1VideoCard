@@ -1,10 +1,22 @@
-#########################################################################################################
+
+#
+# Date: 20250913
+#
 #
 # Purpose:
 # To replace the two, 50 inch rear projection TVs shipped with the infamous arcade game, SEGA Derby Owners Club
 # with one TV. 
 # Perfect for small labs and educational settings.
-# Enjoy
+# Enjoy!
+#
+# 
+#
+# Revision History
+#-----------------------------------------------------
+# Date          | Description       | Author
+#-----------------------------------------------------
+# 20250913  | Maker               | TFR (TedmondFromRedmond@gmail.com)
+#
 #
 #
 # Tested Crop Values
@@ -21,37 +33,21 @@
 # 1920x1080    | 2L    | 40
 #
 #
+
 #
 # Requirements
 # Ubuntu or Raspberry pi5
+# python3.12
 # 
 #
-#
+
 # Usage:
-# python Derby2in1Video.py [video#] [video#] res fps
-# e.g. python Derby2in1Video.py video0 video2 1280 720 30
-# e.g. python Derby2in1Video.py video0 video2 1280 720 60
-#
-# e.g. python Derby2in1Video.py video0 video2 1920 1080 30
-# e.g. python Derby2in1Video.py video0 video2 1920 1080 60
-#
-# if fps is omitted the default is 30
+# python SEGADOC2in1Video.py
 #
 #
-#------------------------------------------------------------------------------------------------------------------
-# Revision History
-# 
-#
-# Date          | Author                                                                            | Description
-#-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# 20250913  | TFR (TedmondFromRedmond@gmail.com)                        | Maker
-#
-#
-#------------------------------------------------------------------------------------------------------------------
-#########################################################################################################
 
 import gi
-import sys 
+import sys
 import os
 import time
 
@@ -61,16 +57,12 @@ gi.require_version('GstVideo', '1.0')
 
 from gi.repository import Gtk, Gst, GdkX11, Gdk
 
-# -------- Config Defaults --------
-fps=30
-LOG_FILE = os.path.expanduser("~/segadoc2IN1lOG.TXT")
-WINDOW_WIDTH = 1280 # Tricks 1920 x 1080 monitor
-WINDOW_HEIGHT = 720
+# -------- Config --------
+LOG_FILE = os.path.expanduser("~/borderless_preview.log")
+WINDOW_WIDTH = 1920
+WINDOW_HEIGHT = 1080
 WINDOW_X = 0
 WINDOW_Y = 50
-res1 = 1920 # default is 1920
-res2 = 1080 # default is 1080
-
 # ------------------------
 
 
@@ -81,34 +73,17 @@ def log(message):
         f.write(msg + "\n"); f.flush()
     print(msg, flush=True)
 
-
-
 # Args
-# Notice the spaces betweeen the resolution instead of 1280x720 there is a space. Correct value is 1280 720 or 1920 1080
-# defaults
-# rememb
+if len(sys.argv) != 3:
+    log("❌ Usage: python t.py <video_device1> <video_device2>   (e.g. video0 video2)")
+    sys.exit(1)
+
 video_device1 = f"/dev/{sys.argv[1]}"
 video_device2 = f"/dev/{sys.argv[2]}"
-
-if len(sys.argv) == 4:
-    # form: script videoX videoY fps
-    fps = sys.argv[3]
-
-elif len(sys.argv) == 6:
-    # Could be either: fps width height   OR   width height fps
-    a3, a4, a5 = sys.argv[3], sys.argv[4], sys.argv[5]
-    if a3.isdigit() and int(a3) < 120:  # treat as fps
-        fps = a3
-        res1, res2 = int(a4), int(a5) # set to integers on purpose
-
-
-# Check video devices exist. if not, msg to operator and exit
 for p in (video_device1, video_device2):
     if not os.path.exists(p):
-        log(f"❌ Error: Device {p} not found.")
-        sys.exit(1)
+        log(f"❌ Error: Device {p} not found."); sys.exit(1)
 
-# passed edits and logic fell thru. logging the start.
 log(f"✅ Starting preview for devices: {video_device1}, {video_device2}")
 
 # GTK / GStreamer init
@@ -151,21 +126,19 @@ class BorderlessVideoWindow(Gtk.Window):
         # >>> Merged change: scale each feed to half width and use transparent background
         half_w = WINDOW_WIDTH // 2
 
-# res1, res2 and fps are passed in via pipeline
-# default res is 1280x 720 if not specified and fps default is 30 if not specified.
+
         pipeline_str = f"""
         compositor name=comp latency=0 background=transparent ! \
             gtksink name=vsink \
         v4l2src device={video_device1} io-mode=2 do-timestamp=true ! \
-            image/jpeg,width={res1},height={res2},framerate={fps}/1 ! jpegdec ! \
+            image/jpeg,width=1920,height=1080,framerate=30/1 ! jpegdec ! \
             videocrop name=crop1 left=40 right=53 ! \
             queue max-size-buffers=1 max-size-bytes=0 max-size-time=0 leaky=downstream ! comp.sink_0 \
         v4l2src device={video_device2} io-mode=2 do-timestamp=true ! \
-            image/jpeg,width={res1},height={res2},framerate={fps}/1 ! jpegdec ! \
+            image/jpeg,width=1920,height=1080,framerate=30/1 ! jpegdec ! \
             videocrop name=crop2 left=44 right=52 ! \
             queue max-size-buffers=1 max-size-bytes=0 max-size-time=0 leaky=downstream ! comp.sink_1
         """
-        
         try:
             self.pipeline = Gst.parse_launch(pipeline_str)
         except Exception as e:
@@ -250,7 +223,7 @@ class BorderlessVideoWindow(Gtk.Window):
 #        self.add_slider("Feed1 Y", 0, self.base_h, 0, self.on_y1)
 #        self.add_slider("Feed1 Zoom", 0.5, 2.0, 1.0, self.on_zoom1, step=0.01)
 #        self.add_slider("Feed1 Alpha", 0.0, 1.0, 1.0, self.on_a1, step=0.01)
-#        self.add_slider("Feed1 Zorder", 0, 10, 0, self.on_z1, step=1)
+#       self.add_slider("Feed1 Zorder", 0, 10, 0, self.on_z1, step=1)
 #        self.add_slider("Feed1 Crop Left", 0, 300, 0, self.on_c1_left)
 #        self.add_slider("Feed1 Crop Right", 0, 300, 0, self.on_c1_right)
 #        self.add_slider("Feed1 Crop Top", 0, 300, 0, self.on_c1_top)
@@ -260,7 +233,7 @@ class BorderlessVideoWindow(Gtk.Window):
 #        self.add_slider("Feed2 X", 0, self.base_w, w0, self.on_x2)
 #        self.add_slider("Feed2 Y", 0, self.base_h, 0, self.on_y2)
 #        self.add_slider("Feed2 Zoom", 0.5, 2.0, 1.0, self.on_zoom2, step=0.01)
-#        self.add_slider("Feed2 Alpha", 0.0, 1.0, 1.0, self.on_a2, step=0.01)
+#       self.add_slider("Feed2 Alpha", 0.0, 1.0, 1.0, self.on_a2, step=0.01)
 #        self.add_slider("Feed2 Zorder", 0, 10, 1, self.on_z2, step=1)
 #        self.add_slider("Feed2 Crop Left", 0, 300, 0, self.on_c2_left)
 #        self.add_slider("Feed2 Crop Right", 0, 300, 0, self.on_c2_right)
@@ -415,19 +388,22 @@ class BorderlessVideoWindow(Gtk.Window):
                 else "ximagesink name=vsink sync=false"
             )
 
-# Leave values as is so this can reset to default. Next, the operator restarts.
+
             pipeline_str = f"""
             compositor name=comp latency=0 background=transparent ! \
-                gtksink name=vsink \
+                xvimagesink name=vsink sync=false \
+
             v4l2src device={video_device1} io-mode=2 do-timestamp=true ! \
-                image/jpeg,width=1280,height=720,framerate={fps}/1 ! jpegdec ! \
+                image/jpeg,width=1920,height=1080,framerate=30/1 ! jpegdec ! \
                 videocrop name=crop1 left=40 right=53 ! \
                 queue max-size-buffers=1 max-size-bytes=0 max-size-time=0 leaky=downstream ! comp.sink_0 \
+
             v4l2src device={video_device2} io-mode=2 do-timestamp=true ! \
-                image/jpeg,width=1280,height=720,framerate={fps}/1 ! jpegdec ! \
+                image/jpeg,width=1920,height=1080,framerate=30/1 ! jpegdec ! \
                 videocrop name=crop2 left=44 right=52 ! \
                 queue max-size-buffers=1 max-size-bytes=0 max-size-time=0 leaky=downstream ! comp.sink_1
             """
+
 
 
             self.pipeline = Gst.parse_launch(pipeline_str)

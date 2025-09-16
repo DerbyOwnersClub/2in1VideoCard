@@ -43,7 +43,8 @@ Before continuing you will need to have python referenced by python3.
 python3 -m venv --system-site-packages gstenv
 - This will create a virtual environment named gstenv
 
-Activate virtual envionrment
+**Activate virtual envionrment**
+
 source gstenv/bin/activate
 
 - Look for a prompt to the left with  
@@ -102,6 +103,7 @@ Use the Utility script to search and display all formats of video input:
  
 
  
+
 
 
 

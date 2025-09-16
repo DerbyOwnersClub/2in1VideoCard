@@ -29,11 +29,17 @@
 #
 # Usage:
 # python Derby2in1Video.py [video#] [video#] res fps
-# e.g. python Derby2in1Video.py video0 video2 1280 720 30
-# e.g. python Derby2in1Video.py video0 video2 1280 720 60
 #
-# e.g. python Derby2in1Video.py video0 video2 1920 1080 30
-# e.g. python Derby2in1Video.py video0 video2 1920 1080 60
+# Try first 
+# e.g. python Derby2in1Video.py video0 video2
+#
+# e.g. python Derby2in1Video.py video0 video2 30 1280 720
+#
+# e.g. python Derby2in1Video.py video0 video2 30 1280 720
+# e.g. python Derby2in1Video.py video0 video2 60 1280 720
+#
+# e.g. python Derby2in1Video.py video0 video2 30 1920 1080
+# e.g. python Derby2in1Video.py video0 video2 60 1920 1080
 #
 # if fps is omitted the default is 30
 #

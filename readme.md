@@ -47,11 +47,11 @@ python3 -m venv --system-site-packages gstenv
 
 source gstenv/bin/activate
 
-- Look for a prompt to the left with  
+- Look for a prompt to the left, labled  
 (gstenv) 
 
 
-Upgrade pip and pure-Python deps:
+**Upgrade pip and pure-Python deps:**
 
 pip install --upgrade pip wheel setuptools
 
@@ -68,28 +68,28 @@ sudo apt install -y \
   gstreamer1.0-gtk3 gstreamer1.0-x gstreamer1.0-gl \
   gstreamer1.0-plugins-base-apps
 
-Verify compositor & sinks
+**Verify compositor & sinks**
 
 gst-inspect-1.0 compositor | head
 gst-inspect-1.0 gtksink   | head
 gst-inspect-1.0 xvimagesink | head   # optional
 
 
-Verify imports
+**Verify imports**
 
 python -c 'import gi; gi.require_version("Gst","1.0"); gi.require_version("Gtk","3.0"); from gi.repository import Gst, Gtk; print("GI OK")'
 
 
-Run the script to combine with the video sources you gained when you ran DiscoverWorkingVideo.py above:
+**Run the script to combine with the video sources. Replace video#1 and video#2 tithe the values discovered running the DiscoverWorkingVideo.py script mentioned above**
 
-python3 SEGADOC2in1Video.py video# video#
+python3 SEGADOC2in1Video.py video#1 video#2
 
 
 <img width="1761" height="1006" alt="image" src="https://github.com/user-attachments/assets/7393e798-9965-48ac-bfbc-edee85551c37" />
 
 
 
-🔧 Troubleshooting
+**🔧 Troubleshooting**
 
 
 If frames are black, confirm the source device is powered and connected.
@@ -98,11 +98,12 @@ Using an HDMI splitter is recommended for setup and debugging.
 
 Use the Utility script to search and display all formats of video input:
  
- DiscoverWorkingVideo.py
+DiscoverWorkingVideo.py
  
  
 
  
+
 
 
 

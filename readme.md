@@ -26,7 +26,7 @@ Connect capture devices
 Plug in both USB-A capture cards.
 
 Execute discovery script from the directory you are in:
-python DiscoverWorkingVideo.py
+python3 DiscoverWorkingVideo.py
 - make note of the video sources appearing and answer the questions correctly.
 - take note of video# devices because you will need them when you execute the main script. 
 
@@ -34,19 +34,25 @@ python DiscoverWorkingVideo.py
 🐍 Python Virtual Environment Setup
 Required to run in ubuntu or rpi.
 
+Before continuing you will need to have python referenced by python3.
+
+In a BASH shell:
 Create a venv with system packages. 
 
-python3 -m mvenv --system-site-packages gstenv
+python3 -m venv --system-site-packages gstenv
 
 source gstenv/bin/activate
+- Look for a prompt to the left with  
+(gstenv) 
 
 Upgrade pip and pure-Python deps:
-
 pip install --upgrade pip wheel setuptools
 
-Install system libraries
 
 sudo apt update
+- may take some time.
+
+# Install gstreamer
 sudo apt install -y \
   v4l-utils \
   python3-gi python3-gi-cairo gir1.2-gtk-3.0 gir1.2-gstreamer-1.0 \
@@ -55,7 +61,6 @@ sudo apt install -y \
   gstreamer1.0-gtk3 gstreamer1.0-x gstreamer1.0-gl \
   gstreamer1.0-plugins-base-apps
 
-
 Verify compositor & sinks
 
 gst-inspect-1.0 compositor | head
@@ -63,34 +68,30 @@ gst-inspect-1.0 gtksink   | head
 gst-inspect-1.0 xvimagesink | head   # optional
 
 
-
-
 Verify imports
 
 python -c 'import gi; gi.require_version("Gst","1.0"); gi.require_version("Gtk","3.0"); from gi.repository import Gst, Gtk; print("GI OK")'
 
 
-Run the compositor script
-
-python SEGADOC2in1Video.py video# video#
+Run the compositor script with the video sources you gained when you ran DiscoverWorkingVideo.py:
+python3 SEGADOC2in1Video.py video# video#
 
 
 <img width="1761" height="1006" alt="image" src="https://github.com/user-attachments/assets/7393e798-9965-48ac-bfbc-edee85551c37" />
 
 
 
-
-
-
-
 🔧 Troubleshooting
+
 
 If frames are black, confirm the source device is powered and connected.
 
 Using an HDMI splitter is recommended for setup and debugging.
 
 Use the Utility script to search and display all formats of video input:
-video_troubleshoot.sh
-- Script iterates through all /dev/video* devices and logs whether they are active.
+ DiscoverWorkingVideo.py
+ The script helps you see which video devices are working.
+
+ 
 
 

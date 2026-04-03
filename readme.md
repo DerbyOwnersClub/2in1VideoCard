@@ -80,7 +80,7 @@ gst-inspect-1.0 xvimagesink | head   # optional
 python -c 'import gi; gi.require_version("Gst","1.0"); gi.require_version("Gtk","3.0"); from gi.repository import Gst, Gtk; print("GI OK")'
 
 
-**Run the script to combine with the video sources. Replace video#1 and video#2 tithe the values discovered running the DiscoverWorkingVideo.py script mentioned above**
+**Run the script to combine with the video sources. Replace video#1 and video#2 with the the values discovered running the DiscoverWorkingVideo.py script mentioned above**
 
 python3 SEGADOC2in1Video.py video#1 video#2
 

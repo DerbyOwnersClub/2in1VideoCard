@@ -1,0 +1,24 @@
+# Python dependencies for SEGADOC2in1Video.py
+#
+# IMPORTANT: `gi` (Gtk/GStreamer bindings) depends on OS libraries/typelibs.
+# Install OS packages first, then install pip requirements.
+#
+# Notes by OS:
+# - Ubuntu Desktop/Server: use package list below as-is.
+# - Raspberry Pi OS Lite: package names are usually the same; if one package
+#   differs/missing (depends on Lite release), install the closest equivalent from:
+#   apt search gstreamer1.0
+# - Ubuntu Core: apt is generally unavailable; use Ubuntu Desktop/Server for
+#   this workflow.
+#
+# Recommended apt packages:
+#   v4l-utils
+#   python3-gi python3-gi-cairo gir1.2-gtk-3.0 gir1.2-gstreamer-1.0
+#   gstreamer1.0-tools gstreamer1.0-plugins-base gstreamer1.0-plugins-good
+#   gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav
+#   gstreamer1.0-gtk3 gstreamer1.0-x gstreamer1.0-gl
+#   gstreamer1.0-plugins-base-apps
+#
+# Optional pip fallback (still requires system gobject-introspection dev libs).
+PyGObject>=3.46
+pycairo>=1.25

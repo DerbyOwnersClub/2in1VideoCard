@@ -59,6 +59,11 @@ pip install --upgrade pip wheel setuptools
 sudo apt update
 - may take some time.
 
+Notes by OS:
+- Ubuntu Desktop/Server: use the package list below as-is.
+- Raspberry Pi OS Lite: package names are usually the same; if one package name differs or is missing (depends on Lite release), install the closest equivalent GTK/GStreamer plugin package from `apt search gstreamer1.0`.
+- Ubuntu Core: `apt` is not generally available; use an Ubuntu Desktop/Server image for this workflow.
+
 # Install gstreamer
 sudo apt install -y \
   v4l-utils \

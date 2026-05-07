@@ -1,10 +1,9 @@
 #########################################################################################################
-#
 # Purpose:
 # To replace the two, 50 inch rear projection TVs shipped with the infamous arcade game, SEGA Derby Owners Club
 # with one TV. 
 # Perfect for small labs and educational settings.
-# Enjoy
+# Enjoy!
 #
 #
 # Tested Crop Values
@@ -23,35 +22,43 @@
 #
 #
 # Requirements
-# Ubuntu or Raspberry pi5
+# Ubuntu Desktop/Server or Raspberry Pi OS Lite
 # 
 #
 #
 # Usage:
-# python Derby2in1Video.py [video#] [video#] res fps
+# python3 SEGADOC2in1Video.py video#1 video#2 [fps] [width] [height] [--record-mp4]
 #
 # Try first 
-# e.g. python Derby2in1Video.py video0 video2
+# e.g. python3 SEGADOC2in1Video.py video0 video2
 #
-# e.g. python Derby2in1Video.py video0 video2 30 1280 720
+# e.g. python3 SEGADOC2in1Video.py video0 video2 --record-mp4 
 #
-# e.g. python Derby2in1Video.py video0 video2 30 1280 720
-# e.g. python Derby2in1Video.py video0 video2 60 1280 720
+# e.g. python3 SEGADOC2in1Video.py video0 video2 30 1280 720
 #
-# e.g. python Derby2in1Video.py video0 video2 30 1920 1080
-# e.g. python Derby2in1Video.py video0 video2 60 1920 1080
+# e.g. python3 SEGADOC2in1Video.py video0 video2 60 1280 720
+#
+# e.g. python3 SEGADOC2in1Video.py video0 video2 30 1920 1080
+# e.g. python3 SEGADOC2in1Video.py video0 video2 60 1920 1080
+#
+# Record combined output to MP4 in current directory:
+# e.g. python3 SEGADOC2in1Video.py video0 video2 --record-mp4
+# e.g. python3 SEGADOC2in1Video.py video0 video2 60 1920 1080 --record-mp4
 #
 # if fps is omitted the default is 30
+# if width/height are omitted defaults are 1920 1080
+# Press 'q' in the app window to stop. If recording is enabled, MP4 finalizes on quit.
 #
 #
 #------------------------------------------------------------------------------------------------------------------
 # Revision History
 # 
 #
-# Date          | Author                                                                            | Description
+# Date      | Author                                 | Description
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# 20250913  | TFR (TedmondFromRedmond@gmail.com)                        | Maker
+# 20260403  | TFR                                    | Ported to Ubuntu, created requirements.txt, added recording capability with parameters for recording.
 #
+# 20250913  | TFR (TedmondFromRedmond@gmail.com)     | Maker.
 #
 #------------------------------------------------------------------------------------------------------------------
 #########################################################################################################
@@ -60,12 +67,13 @@ import gi
 import sys 
 import os
 import time
+import argparse
 
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gst', '1.0')
 gi.require_version('GstVideo', '1.0')
 
-from gi.repository import Gtk, Gst, GdkX11, Gdk
+from gi.repository import Gtk, Gst, GdkX11, Gdk, GLib
 
 # -------- Config Defaults --------
 fps=30
@@ -74,8 +82,11 @@ WINDOW_WIDTH = 1280 # Tricks 1920 x 1080 monitor
 WINDOW_HEIGHT = 720
 WINDOW_X = 0
 WINDOW_Y = 50
-res1 = 1920 # default is 1920
-res2 = 1080 # default is 1080
+
+# res1 = 1920 # default is 1920
+# res2 = 1080 # default is 1080
+res1 = 1280 # default is 1920
+res2 = 720 # default is 1080
 
 # ------------------------
 
@@ -89,23 +100,35 @@ def log(message):
 
 
 
-# Args
-# Notice the spaces betweeen the resolution instead of 1280x720 there is a space. Correct value is 1280 720 or 1920 1080
-# defaults
-# rememb
-video_device1 = f"/dev/{sys.argv[1]}"
-video_device2 = f"/dev/{sys.argv[2]}"
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="SEGA DOC 2-in-1 preview tool with optional MP4 recording."
+    )
+    parser.add_argument("video1", help="First video device name (example: video0)")
+    parser.add_argument("video2", help="Second video device name (example: video2)")
+    parser.add_argument("fps", nargs="?", type=int, default=30, help="Frame rate (default: 30)")
+    parser.add_argument("width", nargs="?", type=int, default=1920, help="Input width (default: 1920)")
+    parser.add_argument("height", nargs="?", type=int, default=1080, help="Input height (default: 1080)")
+    parser.add_argument(
+        "--record-mp4",
+        action="store_true",
+        help="Record the combined 2-in-1 output to an MP4 file in the current directory.",
+    )
+    return parser.parse_args()
 
-if len(sys.argv) == 4:
-    # form: script videoX videoY fps
-    fps = sys.argv[3]
 
-elif len(sys.argv) == 6:
-    # Could be either: fps width height   OR   width height fps
-    a3, a4, a5 = sys.argv[3], sys.argv[4], sys.argv[5]
-    if a3.isdigit() and int(a3) < 120:  # treat as fps
-        fps = a3
-        res1, res2 = int(a4), int(a5) # set to integers on purpose
+args = parse_args()
+video_device1 = f"/dev/{args.video1}"
+video_device2 = f"/dev/{args.video2}"
+fps = args.fps
+res1 = args.width
+res2 = args.height
+
+record_mp4 = args.record_mp4
+record_file = None
+if record_mp4:
+    ts = time.strftime("%Y%m%d_%H%M%S")
+    record_file = os.path.abspath(os.path.join(os.getcwd(), f"segadoc_2in1_{ts}.mp4"))
 
 
 # Check video devices exist. if not, msg to operator and exit
@@ -116,6 +139,9 @@ for p in (video_device1, video_device2):
 
 # passed edits and logic fell thru. logging the start.
 log(f"✅ Starting preview for devices: {video_device1}, {video_device2}")
+if record_mp4:
+    log(f"⏺️ Recording enabled. Output file: {record_file}")
+log("⌨️ Operator message: Press 'q' in the app window, or type 'q' + Enter in the terminal, to end program. If recording is enabled, recording will stop and finalize.")
 
 # GTK / GStreamer init
 Gst.init(None)
@@ -131,12 +157,18 @@ class BorderlessVideoWindow(Gtk.Window):
         self.move(WINDOW_X, WINDOW_Y)
         self.connect("key-press-event", self.on_key_press)
         self.connect("configure-event", self.on_resize)
+        self.set_can_focus(True)
         self.base_w, self.base_h = WINDOW_WIDTH, WINDOW_HEIGHT
+        self.record_mp4 = record_mp4
+        self.record_file = record_file
+        self.is_stopping = False
 
         # Layout: video on top, sliders below
         self.vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
         self.add(self.vbox)
         self.show_all()
+        self.grab_focus()
+        self._setup_terminal_quit_watch()
 
         # Choose sink: gtksink > glimagesink > ximagesink
         self.sink_kind = None
@@ -153,24 +185,7 @@ class BorderlessVideoWindow(Gtk.Window):
             if self.sink_kind == "glimagesink"
             else "ximagesink name=vsink sync=false"
         )
-
-        # >>> Merged change: scale each feed to half width and use transparent background
-        half_w = WINDOW_WIDTH // 2
-
-# res1, res2 and fps are passed in via pipeline
-# default res is 1280x 720 if not specified and fps default is 30 if not specified.
-        pipeline_str = f"""
-        compositor name=comp latency=0 background=transparent ! \
-            gtksink name=vsink \
-        v4l2src device={video_device1} io-mode=2 do-timestamp=true ! \
-            image/jpeg,width={res1},height={res2},framerate={fps}/1 ! jpegdec ! \
-            videocrop name=crop1 left=40 right=53 ! \
-            queue max-size-buffers=1 max-size-bytes=0 max-size-time=0 leaky=downstream ! comp.sink_0 \
-        v4l2src device={video_device2} io-mode=2 do-timestamp=true ! \
-            image/jpeg,width={res1},height={res2},framerate={fps}/1 ! jpegdec ! \
-            videocrop name=crop2 left=44 right=52 ! \
-            queue max-size-buffers=1 max-size-bytes=0 max-size-time=0 leaky=downstream ! comp.sink_1
-        """
+        pipeline_str = self._build_pipeline_string(sink_desc)
         
         try:
             self.pipeline = Gst.parse_launch(pipeline_str)
@@ -189,6 +204,8 @@ class BorderlessVideoWindow(Gtk.Window):
             except Exception:
                 sink_widget = None
             if sink_widget:
+                sink_widget.set_can_focus(True)
+                sink_widget.connect("key-press-event", self.on_key_press)
                 self.vbox.pack_start(sink_widget, True, True, 0)
                 self.show_all()
                 try: self.vsink.set_property("force-aspect-ratio", False)
@@ -369,6 +386,8 @@ class BorderlessVideoWindow(Gtk.Window):
     # ---- Embedding for non-gtksink ----
     def _embed_with_handle(self):
         self.drawing_area = Gtk.DrawingArea()
+        self.drawing_area.set_can_focus(True)
+        self.drawing_area.connect("key-press-event", self.on_key_press)
         self.vbox.pack_start(self.drawing_area, True, True, 0)
         self.show_all()
         try: self.vsink.set_property("force-aspect-ratio", False)
@@ -400,13 +419,86 @@ class BorderlessVideoWindow(Gtk.Window):
                     except Exception: pass
 
     def on_key_press(self, widget, event):
-        if event.keyval == Gdk.KEY_Escape:
+        if event.keyval in (Gdk.KEY_q, Gdk.KEY_Q):
+            log("🛑 Q key pressed. Exiting preview window.")
+            self.stop_and_quit()
+        elif event.keyval == Gdk.KEY_Escape:
             log("🛑 ESC key pressed. Exiting preview window.")
-            self.pipeline.set_state(Gst.State.NULL)
-            Gtk.main_quit()
+            self.stop_and_quit()
         elif event.keyval == Gdk.KEY_r:   # 🔄 Refresh pipeline
             log("🔄 R key pressed. Refreshing pipeline...")
             self.refresh_pipeline()
+
+    def _setup_terminal_quit_watch(self):
+        try:
+            if sys.stdin and not sys.stdin.closed:
+                GLib.io_add_watch(sys.stdin, GLib.IO_IN | GLib.IO_HUP | GLib.IO_ERR, self._on_stdin_input)
+        except Exception as e:
+            log(f"⚠️ Terminal quit watcher unavailable: {e}")
+
+    def _on_stdin_input(self, source, condition):
+        if condition & (GLib.IO_HUP | GLib.IO_ERR):
+            return False
+        try:
+            line = source.readline()
+        except Exception:
+            return True
+
+        if line and line.strip().lower() == "q":
+            log("🛑 Q received from terminal. Exiting preview window.")
+            self.stop_and_quit()
+            return False
+        return True
+
+    def _build_pipeline_string(self, sink_desc):
+        record_branch = ""
+        if self.record_mp4 and self.record_file:
+            safe_record_file = self.record_file.replace('"', '\\"')
+            record_branch = (
+                f't. ! queue max-size-buffers=30 max-size-bytes=0 max-size-time=0 ! '
+                f'videoconvert ! x264enc tune=zerolatency speed-preset=veryfast bitrate=6000 key-int-max=60 ! '
+                f'h264parse ! mp4mux faststart=true ! filesink location="{safe_record_file}" sync=false async=false'
+            )
+
+        pipeline_str = f"""
+        compositor name=comp latency=0 background=transparent ! \
+            tee name=t \
+        t. ! queue max-size-buffers=1 max-size-bytes=0 max-size-time=0 leaky=downstream ! {sink_desc} \
+        {record_branch}
+        v4l2src device={video_device1} io-mode=2 do-timestamp=true ! \
+            image/jpeg,width={res1},height={res2},framerate={fps}/1 ! jpegdec ! \
+            videocrop name=crop1 left=40 right=53 ! \
+            queue max-size-buffers=1 max-size-bytes=0 max-size-time=0 leaky=downstream ! comp.sink_0 \
+        v4l2src device={video_device2} io-mode=2 do-timestamp=true ! \
+            image/jpeg,width={res1},height={res2},framerate={fps}/1 ! jpegdec ! \
+            videocrop name=crop2 left=44 right=52 ! \
+            queue max-size-buffers=1 max-size-bytes=0 max-size-time=0 leaky=downstream ! comp.sink_1
+        """
+        return pipeline_str
+
+    def stop_and_quit(self):
+        if self.is_stopping:
+            return
+        self.is_stopping = True
+
+        if self.record_mp4:
+            try:
+                bus = self.pipeline.get_bus()
+                self.pipeline.send_event(Gst.Event.new_eos())
+                msg = bus.timed_pop_filtered(
+                    5 * Gst.SECOND,
+                    Gst.MessageType.EOS | Gst.MessageType.ERROR
+                )
+                if msg and msg.type == Gst.MessageType.ERROR:
+                    err, dbg = msg.parse_error()
+                    log(f"❌ Recording finalize error: {err}; {dbg}")
+            except Exception as e:
+                log(f"❌ Failed to finalize recording cleanly: {e}")
+
+        self.pipeline.set_state(Gst.State.NULL)
+        if self.record_mp4 and self.record_file:
+            log(f"✅ Recording saved to: {self.record_file}")
+        Gtk.main_quit()
 
     def refresh_pipeline(self):
         try:
@@ -421,19 +513,7 @@ class BorderlessVideoWindow(Gtk.Window):
                 else "ximagesink name=vsink sync=false"
             )
 
-# Leave values as is so this can reset to default. Next, the operator restarts.
-            pipeline_str = f"""
-            compositor name=comp latency=0 background=transparent ! \
-                gtksink name=vsink \
-            v4l2src device={video_device1} io-mode=2 do-timestamp=true ! \
-                image/jpeg,width=1280,height=720,framerate={fps}/1 ! jpegdec ! \
-                videocrop name=crop1 left=40 right=53 ! \
-                queue max-size-buffers=1 max-size-bytes=0 max-size-time=0 leaky=downstream ! comp.sink_0 \
-            v4l2src device={video_device2} io-mode=2 do-timestamp=true ! \
-                image/jpeg,width=1280,height=720,framerate={fps}/1 ! jpegdec ! \
-                videocrop name=crop2 left=44 right=52 ! \
-                queue max-size-buffers=1 max-size-bytes=0 max-size-time=0 leaky=downstream ! comp.sink_1
-            """
+            pipeline_str = self._build_pipeline_string(sink_desc)
 
 
             self.pipeline = Gst.parse_launch(pipeline_str)
